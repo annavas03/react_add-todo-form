@@ -9,6 +9,8 @@ import { Todo } from './types/todos';
 
 export const App = () => {
   const [userId, setUserId] = useState('');
+  const [titleError, setTitleError] = useState(false);
+  const [userError, setUserError] = useState(false);
 
   const todosWithUsers: Todo[] = [];
 
@@ -25,15 +27,16 @@ export const App = () => {
 
   const [todos, setTodos] = useState(todosWithUsers);
   const [title, setTitle] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const isValidTitle = title.trim() !== '';
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setSubmitted(true);
+    const hasTitleError = title.trim() === '';
+    const hasUserError = userId === '';
 
-    if (!(title.trim() !== '' && userId !== '')) {
+    setTitleError(hasTitleError);
+    setUserError(hasUserError);
+
+    if (hasTitleError || hasUserError) {
       return;
     }
 
@@ -60,7 +63,8 @@ export const App = () => {
 
     setTitle('');
     setUserId('');
-    setSubmitted(false);
+    setTitleError(false);
+    setUserError(false);
   };
 
   return (
@@ -76,13 +80,11 @@ export const App = () => {
             value={title}
             onChange={event => {
               setTitle(event.target.value);
-              setSubmitted(false);
+              setTitleError(false);
             }}
           />
 
-          {submitted && !isValidTitle && (
-            <span className="error">Please enter a title</span>
-          )}
+          {titleError && <span className="error">Please enter a title</span>}
         </div>
 
         <div className="field">
@@ -91,7 +93,7 @@ export const App = () => {
             value={userId}
             onChange={event => {
               setUserId(event.target.value);
-              setSubmitted(false);
+              setUserError(false);
             }}
           >
             <option value="">Choose a user</option>
@@ -103,9 +105,7 @@ export const App = () => {
             ))}
           </select>
 
-          {submitted && userId === '' && (
-            <span className="error">Please choose a user</span>
-          )}
+          {userError && <span className="error">Please choose a user</span>}
         </div>
 
         <button type="submit" data-cy="submitButton">
