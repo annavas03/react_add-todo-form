@@ -8,7 +8,7 @@ import todosFromServer from './api/todos';
 import { Todo } from './types/todos';
 
 export const App = () => {
-  const [userId, setUserId] = useState(0);
+  const [userId, setUserId] = useState('');
 
   const todosWithUsers: Todo[] = [];
 
@@ -33,13 +33,16 @@ export const App = () => {
     event.preventDefault();
     setSubmitted(true);
 
-    if (!(title.trim() !== '' && userId !== 0)) {
+    if (!(title.trim() !== '' && userId !== '')) {
       return;
     }
 
-    const newId = Math.max(...todos.map(todo => todo.id)) + 1;
+    const maxId = todos.length ? Math.max(...todos.map(todo => todo.id)) : 0;
 
-    const user = getUserById(userId);
+    const newId = maxId + 1;
+
+    const selectedUserId = Number(userId);
+    const user = getUserById(selectedUserId);
 
     if (!user) {
       return;
@@ -48,7 +51,7 @@ export const App = () => {
     const newTodo = {
       id: newId,
       title,
-      userId,
+      userId: selectedUserId,
       completed: false,
       user,
     };
@@ -56,7 +59,7 @@ export const App = () => {
     setTodos(prev => [...prev, newTodo]);
 
     setTitle('');
-    setUserId(0);
+    setUserId('');
     setSubmitted(false);
   };
 
@@ -71,8 +74,12 @@ export const App = () => {
             placeholder="Enter a title"
             data-cy="titleInput"
             value={title}
-            onChange={event => setTitle(event.target.value)}
+            onChange={event => {
+              setTitle(event.target.value);
+              setSubmitted(false);
+            }}
           />
+
           {submitted && !isValidTitle && (
             <span className="error">Please enter a title</span>
           )}
@@ -82,11 +89,12 @@ export const App = () => {
           <select
             data-cy="userSelect"
             value={userId}
-            onChange={event => setUserId(+event.target.value)}
+            onChange={event => {
+              setUserId(event.target.value);
+              setSubmitted(false);
+            }}
           >
-            <option value="0" disabled>
-              Choose a user
-            </option>
+            <option value="">Choose a user</option>
 
             {usersFromServer.map(user => (
               <option key={user.id} value={user.id}>
@@ -95,7 +103,7 @@ export const App = () => {
             ))}
           </select>
 
-          {submitted && userId === 0 && (
+          {submitted && userId === '' && (
             <span className="error">Please choose a user</span>
           )}
         </div>
