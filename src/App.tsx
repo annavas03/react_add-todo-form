@@ -5,10 +5,25 @@ import './App.scss';
 
 import usersFromServer from './api/users';
 import todosFromServer from './api/todos';
+import { Todo } from './types/todos';
 
 export const App = () => {
   const [userId, setUserId] = useState(0);
-  const [todos, setTodos] = useState(todosFromServer);
+
+  const todosWithUsers: Todo[] = [];
+
+  for (const todo of todosFromServer) {
+    const user = usersFromServer.find(u => u.id === todo.userId);
+
+    if (user) {
+      todosWithUsers.push({
+        ...todo,
+        user,
+      });
+    }
+  }
+
+  const [todos, setTodos] = useState(todosWithUsers);
   const [title, setTitle] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -24,12 +39,18 @@ export const App = () => {
 
     const newId = Math.max(...todos.map(todo => todo.id)) + 1;
 
+    const user = getUserById(userId);
+
+    if (!user) {
+      return;
+    }
+
     const newTodo = {
       id: newId,
       title,
       userId,
       completed: false,
-      user: getUserById(userId),
+      user,
     };
 
     setTodos(prev => [...prev, newTodo]);

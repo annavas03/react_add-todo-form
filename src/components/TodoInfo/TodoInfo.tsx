@@ -1,5 +1,4 @@
 import { Todo } from '../../types/todos';
-import getUserById from '../../utils/getUserById';
 import { UserInfo } from '../UserInfo';
 
 type TodoInfoProps = {
@@ -7,12 +6,7 @@ type TodoInfoProps = {
 };
 
 export const TodoInfo = ({ todo }: TodoInfoProps) => {
-  const { title, userId, completed } = todo;
-  const user = getUserById(userId);
-
-  if (!user) {
-    return null;
-  }
+  const { title, completed, user } = todo;
 
   return (
     <article
